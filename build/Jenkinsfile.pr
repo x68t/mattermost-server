@@ -243,8 +243,6 @@ pipeline {
 		}
 
 		stage('Test') {
-			failFast true
-
 			parallel {
 				stage('Test-Mysql') {
 					environment {
@@ -471,6 +469,10 @@ pipeline {
 
 	post {
 		always {
+			dir('src-copy/github.com/mattermost/mattermost-server') {
+				junit allowEmptyResults: true, healthScaleFactor: 0.0, testResults: 'report*.xml'
+				archiveArtifacts 'report*.xml'
+			}
 			dir('src/github.com/mattermost/mattermost-server') {
 				junit allowEmptyResults: true, healthScaleFactor: 0.0, testResults: 'report*.xml'
 				archiveArtifacts 'report*.xml'
