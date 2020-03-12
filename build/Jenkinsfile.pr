@@ -68,6 +68,11 @@ pipeline {
 						}
 					}
 				}
+                ansiColor('xterm') {
+                    sh """
+                    cp -r ${WORKSPACE}/src ${WORKSPACE}/src-copy
+                    """
+                }
 			}
 		}
 
@@ -376,13 +381,7 @@ pipeline {
 					}
 
 					steps {
-						ansiColor('xterm') {
-							sh """
-							cp -r ${WORKSPACE}/src ${WORKSPACE}/src-copy
-							"""
-						}
-
-						dir('src/github.com/mattermost/mattermost-server/build') {
+						dir('src-copy/github.com/mattermost/mattermost-server/build') {
 							ansiColor('xterm') {
 								sh """
 								/usr/local/bin/docker-compose --no-ansi run --rm start_dependencies
@@ -391,7 +390,7 @@ pipeline {
 							}
 						}
 
-						dir('src/github.com/mattermost/mattermost-server') {
+						dir('src-copy/github.com/mattermost/mattermost-server') {
 							ansiColor('xterm') {
 								sh """
 								echo "Creating databases"
@@ -423,7 +422,7 @@ pipeline {
 							}
 						}
 
-						dir('src/github.com/mattermost/mattermost-server') {
+						dir('src-copy/github.com/mattermost/mattermost-server') {
 							ansiColor('xterm') {
 								sh """
 								echo "Generating dump"
