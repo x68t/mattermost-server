@@ -22,6 +22,7 @@ func TestSchemeStore(t *testing.T, ss store.Store) {
 	t.Run("Delete", func(t *testing.T) { testSchemeStoreDelete(t, ss) })
 	t.Run("PermanentDeleteAll", func(t *testing.T) { testSchemeStorePermanentDeleteAll(t, ss) })
 	t.Run("GetByName", func(t *testing.T) { testSchemeStoreGetByName(t, ss) })
+	t.Run("CountByScope", func(t *testing.T) { testSchemeStoreCountByScope(t, ss) })
 }
 
 func createDefaultRoles(t *testing.T, ss store.Store) {
@@ -485,4 +486,34 @@ func testSchemeStorePermanentDeleteAll(t *testing.T, ss store.Store) {
 	schemes, err := ss.Scheme().GetAllPage("", 0, 100000)
 	assert.Nil(t, err)
 	assert.Empty(t, schemes)
+}
+
+func testSchemeStoreCountByScope(t *testing.T, ss store.Store) {
+	testCounts := func(expectedTeamCount, expectedChannelCount int) {
+		actualCount, err := ss.Scheme().CountByScope(model.SCHEME_SCOPE_TEAM)
+		require.Nil(t, err)
+		require.Equal(t, int64(expectedTeamCount), actualCount)
+
+		actualCount, err = ss.Scheme().CountByScope(model.SCHEME_SCOPE_CHANNEL)
+		require.Nil(t, err)
+		require.Equal(t, int64(expectedChannelCount), actualCount)
+	}
+
+	createScheme := func(scope string) {
+		_, err := ss.Scheme().Save(&model.Scheme{
+			Name:        model.NewId(),
+			DisplayName: model.NewId(),
+			Description: model.NewId(),
+			Scope:       scope,
+		})
+		require.Nil(t, err)
+	}
+
+	createScheme(model.SCHEME_SCOPE_CHANNEL)
+	createScheme(model.SCHEME_SCOPE_TEAM)
+	testCounts(1, 1)
+	createScheme(model.SCHEME_SCOPE_TEAM)
+	testCounts(2, 1)
+	createScheme(model.SCHEME_SCOPE_CHANNEL)
+	testCounts(2, 2)
 }
