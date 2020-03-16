@@ -128,6 +128,12 @@ type ChannelSearchOpts struct {
 	PerPage                *int
 }
 
+type ChannelMemberCountByGroup struct {
+	GroupId                     string `json:"group_id"`
+	ChannelMemberCount          int64  `json:"channel_member_count"`
+	ChannelMemberTimezonesCount int64  `json:"channel_member_timezones_count"`
+}
+
 func (o *Channel) DeepCopy() *Channel {
 	copy := *o
 	if copy.SchemeId != nil {
